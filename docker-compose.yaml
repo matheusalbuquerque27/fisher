@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  database:
+    container_name: db-mysql
+    image: mysql:8.0
+    networks:
+      - fisher_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=fisher_db_123456
+      - MYSQL_DATABASE=fisher_db
+    restart: always
+    tty: true
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysql" ,"-u", "root", "-pfisher_db_123456", "fisher_db"]
+      interval: 15s
+      timeout: 15s
+      retries: 15
+      start_period: 25s
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+networks:
+  fisher_network:
+    driver: bridge
+
+volumes:
+  mysql_data:

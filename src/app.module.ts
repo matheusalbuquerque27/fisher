@@ -6,18 +6,28 @@ import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { OrganizacoesModule } from './organizacoes/organizacoes.module';
 import { FuncoesModule } from './funcoes/funcoes.module';
 import { ApoiadosModule } from './apoiados/apoiados.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '3306'),
-      username: process.env.DB_USER || 'root',
-      password: process.env.DB_PASS || '',
-      database: process.env.DB_NAME || 'fisher_db',
-      autoLoadEntities: true,
-      synchronize: true, // ⚠️ só em desenvolvimento!
+
+     ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql',
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASS'),
+        database: config.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true, // ⚠️ apenas em dev!
+      }),
     }),
     ColaboradoresModule,
     OrganizacoesModule,
