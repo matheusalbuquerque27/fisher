@@ -15,21 +15,29 @@ const colaboradores_module_1 = require("./colaboradores/colaboradores.module");
 const organizacoes_module_1 = require("./organizacoes/organizacoes.module");
 const funcoes_module_1 = require("./funcoes/funcoes.module");
 const apoiados_module_1 = require("./apoiados/apoiados.module");
+const config_1 = require("@nestjs/config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'mysql',
-                host: process.env.DB_HOST || 'localhost',
-                port: parseInt(process.env.DB_PORT || '3306'),
-                username: process.env.DB_USER || 'root',
-                password: process.env.DB_PASS || '',
-                database: process.env.DB_NAME || 'fisher_db',
-                autoLoadEntities: true,
-                synchronize: true,
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+            }),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    type: 'mysql',
+                    host: config.get('DB_HOST'),
+                    port: config.get('DB_PORT'),
+                    username: config.get('DB_USER'),
+                    password: config.get('DB_PASS'),
+                    database: config.get('DB_NAME'),
+                    autoLoadEntities: true,
+                    synchronize: true,
+                }),
             }),
             colaboradores_module_1.ColaboradoresModule,
             organizacoes_module_1.OrganizacoesModule,
